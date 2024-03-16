@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 
 export default function ProtectedPage() {
     const router = useRouter();
-    moment.locale("id");
-    const [categories, setCategories] = useState({});
+    // moment.locale("id");
+    const [categories, setCategories] = useState([]);
     const fetchData = async () => {
         // console.log(moment().seconds(+30).format());
         //fetch user from Rest API
@@ -46,6 +46,16 @@ export default function ProtectedPage() {
     }, []);
 
     return <>
+        <h1>Dashboard</h1>
+        {/* <p>Categories</p> */}
+        <ul>
+            {/* {categories.map((category) => (
+                <li key={category.id}>
+                    {category.name}
+                </li>
+            ))} */}
+        </ul>
+
         <button className="btn btn-primary" onClick={fetchData}>Refresh</button>
         <button className="btn btn-error" onClick={logoutHandler}>Logout</button>
     </>;

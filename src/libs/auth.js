@@ -1,14 +1,24 @@
 // import { jwtVerify } from "jose";
 import { jwtDecode } from 'jwt-decode';
 import axios from "axios";
-import Cookies from "universal-cookie";
+import Cookies from 'js-cookie';
 import { NextResponse } from "next/server";
-import moment from "moment";
+import moment from 'moment-timezone';
 
 export const API_URL = process.env.NEXT_PUBLIC_API_BACKEND;
-const cookies = new Cookies();
-const accessToken = cookies.get("token") ?? null;
-moment.locale("id");
+// const cookies = new Cookies();
+// const accessToken = Cookies.get("token") ?? null;
+// console.log('access', accessToken);
+// moment.locale("id");
+const currentDate = new Date();
+
+// Get the current time in Asia/Jakarta time zone
+const jakartaTime = new Date(currentDate.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+
+// Calculate the expiration time by adding 30 seconds
+// const expirationTime = new Date(jakartaTime.getTime() + 60 * 1000); // 30 seconds * 1000 milliseconds per second
+const expirationTime = moment.tz('Asia/Jakarta').add(30, 'seconds'); // 30 seconds * 1000 milliseconds per second
+console.log('expirationTime', expirationTime.toDate().toUTCString());
 
 export function getJwtSecretKey() {
     const secret = process.env.NEXT_PUBLIC_JWT_SECRET_KEY;
@@ -44,35 +54,65 @@ function isAccessTokenValid(token) {
     }
 }
 
+/**
+ * Custom fetch for axios
+ */
+
+export const apiFetch = axios.create({
+    baseURL: `${API_URL}`,
+    headers: {
+        'Authorization': `Bearer ${Cookies.get("token")}`
+    }
+})
+
+apiFetch.interceptors.request.use(async (config) => {
+    if (isAccessTokenValid(config.headers.Authorization.split(' ')[1])) {
+        return config; // Access token is valid
+    }
+
+    const newAccessToken = await refreshToken(Cookies.get("token"));
+    console.log('newAccessToken ', newAccessToken);
+    config.headers.Authorization = `Bearer ${newAccessToken}`;
+    return config;
+});
+
 export async function refreshToken(token) {
     try {
+        console.log('Refresh token process');
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BACKEND}/api/refresh`);
+        console.log('Refresh token response ', response.data.token);
+        // return true;
 
-        if (!response.data) {
+        /*  if (!response.ok) {
             console.log('Refresh token failed');
             throw new Error('Refresh token failed'); // Handle errors
-        }
+        } */
 
-        const newToken = response.data.token;
+        // const newToken = response.data.token;
+
+        Cookies.remove("token");
+
+        // document.cookie = `token=${response.data.token}; max-age=30; expires=${expirationTime.toDate().toUTCString()} path=/;`;
+        document.cookie = `token=${response.data.token}; path=/;`;
         
-        cookies.set({
+        /* cookies.set({
             name: "token",
-            value: newToken,
+            value: response.data.token,
             // path: "/",
             // httpOnly: true,
             // secure: true,
             // maxAge: 60 * 60 * 24,
-            maxAge: new Date(Date.now() + 30 * 1000), // 30 seconds
+            // maxAge: Math.floor((expirationTime.getTime() - currentDate.getTime()) / 1000), // 30 seconds
             // maxAge: moment().seconds(+30).format(), // 30 seconds
-        });
+        }); */
 
-        return newToken;
+        return response.data.token;
 
         // const user = await response.json();
         // return user.data.token; // Return the new access token
     } catch (error) {
-        console.log('Refresh token error ', error);
+        console.log('Refresh token error ', error.response.data);
         // router.push("/login");
         const redirect = NextResponse.redirect(new URL(`/login`));
         return redirect;
@@ -81,10 +121,10 @@ export async function refreshToken(token) {
 
 export async function logout() {
     try {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`
+        axios.defaults.headers.common['Authorization'] = `Bearer ${Cookies.get("token")}`
         await axios.post(`${process.env.NEXT_PUBLIC_API_BACKEND}/api/logout`);
 
-        cookies.remove("token");
+        Cookies.remove("token");
 
         const response = NextResponse.json(
             { success: true },
@@ -100,27 +140,6 @@ export async function logout() {
         // router.push("/login");
     }
 }
-
-/**
- * Custom fetch for axios
- */
-
-export const apiFetch = axios.create({
-    baseURL: `${API_URL}`,
-    headers: {
-        'Authorization': `Bearer ${accessToken}`
-    }
-})
-
-apiFetch.interceptors.request.use(async (config) => {
-    if (isAccessTokenValid(config.headers.Authorization.split(' ')[1])) {
-        return config; // Access token is valid
-    }
-
-    const newAccessToken = await refreshToken(accessToken);
-    config.headers.Authorization = `Bearer ${newAccessToken}`;
-    return config;
-});
 
 /* export async function apiFetch(endpoint, method,  = {}) {
     const url = `${API_URL}${endpoint}`;

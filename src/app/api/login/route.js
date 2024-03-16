@@ -3,11 +3,20 @@ import { getJwtSecretKey } from "@/libs/auth";
 import { API_URL } from "@/libs/auth";
 import axios from "axios";
 import { NextResponse } from "next/server";
-import moment from "moment";
+import moment from 'moment-timezone';
 
 export async function POST(request) {
-    moment.locale("id");
+    // moment.locale("id");
     const body = await request.json();
+    
+    const currentDate = new Date();
+
+    // Get the current time in Asia/Jakarta time zone
+    const jakartaTime = new Date(currentDate.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+
+    // Calculate the expiration time by adding 30 seconds
+    // const expirationTime = new Date(jakartaTime.getTime() + 60 * 1000); // 30 seconds * 1000 milliseconds per second
+    const expirationTime = moment.tz('Asia/Jakarta').add(30, 'seconds'); // 30 seconds * 1000 milliseconds per second
     /* const 
     const token = await new SignJWT({
         username: body.username,
@@ -45,12 +54,14 @@ export async function POST(request) {
         response.cookies.set({
             name: "token",
             value: res.data.token,
-            // path: "/",
+            path: "/",
+            // expires: expirationTime.toDate().toUTCString(),
+            // maxAge: 30, // 30 seconds
             // httpOnly: true,
             // secure: true,/
             // maxAge: 60 * 60 * 24,
-            maxAge: new Date(Date.now() + 30 * 1000), // 30 seconds
-            // maxAge: moment().seconds(+30).format(), // 30 seconds
+            // maxAge: Math.floor((expirationTime.getTime() - currentDate.getTime()) / 1000), // 30 seconds
+            // maxAge: new Date(Date.now() + 30 * 1000), // 30 seconds
         });
         
         return response;
