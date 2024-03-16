@@ -36,4 +36,5 @@ export async function middleware(request) {
 
 }
 
+// export const config = { matcher: ["/login", "/protected/:path*"] };
 export const config = { matcher: ["/login", "/protected/:path*"] };
