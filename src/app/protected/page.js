@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { apiFetch, logout } from "@/libs/auth";
 import moment from "moment";
 import { useRouter } from "next/navigation";
+import AdminLayout from "../../components/AdminLayout"
 
 export default function ProtectedPage() {
     const router = useRouter();
@@ -45,18 +46,26 @@ export default function ProtectedPage() {
         fetchData();
     }, []);
 
-    return <>
-        <h1>Dashboard</h1>
-        {/* <p>Categories</p> */}
-        <ul>
+    return (
+      <>
+        <AdminLayout router={router}>
+          <h1>Dashboard</h1>
+          {/* <p>Categories</p> */}
+          <ul>
             {/* {categories.map((category) => (
                 <li key={category.id}>
                     {category.name}
                 </li>
             ))} */}
-        </ul>
+          </ul>
 
-        <button className="btn btn-primary" onClick={fetchData}>Refresh</button>
-        <button className="btn btn-error" onClick={logoutHandler}>Logout</button>
-    </>;
+          <button className="btn btn-primary" onClick={fetchData}>
+            Refresh
+          </button>
+          <button className="btn btn-error" onClick={logoutHandler}>
+            Logout
+          </button>
+        </AdminLayout>
+      </>
+    );
 }
