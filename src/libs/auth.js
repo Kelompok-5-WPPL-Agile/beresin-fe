@@ -65,7 +65,7 @@ export const apiFetch = axios.create({
     }
 })
 
-apiFetch.interceptors.request.use(async (config) => {
+/* apiFetch.interceptors.request.use(async (config) => {
     if (isAccessTokenValid(config.headers.Authorization.split(' ')[1])) {
         return config; // Access token is valid
     }
@@ -74,7 +74,7 @@ apiFetch.interceptors.request.use(async (config) => {
     console.log('newAccessToken ', newAccessToken);
     config.headers.Authorization = `Bearer ${newAccessToken}`;
     return config;
-});
+}); */
 
 export async function refreshToken(token) {
     try {

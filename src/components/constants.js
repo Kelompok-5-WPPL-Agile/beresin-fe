@@ -23,7 +23,7 @@ export const MENU_LIST = [
   },
   {
     name: "Daftar User",
-    path: "/",
+    path: "/users",
     icon: UserGroupIcon,
   },
 ];

@@ -79,7 +79,8 @@ const Layout = ({ children }) => {
                       ? "flex flex-row items-center px-3 py-1 rounded-md active mb-4"
                       : "flex flex-row items-center px-3 py-1 rounded-md mb-4"
                   }
-                  onClick={() => handleChangePage(menu.path, menu.name)}
+                      onClick={() => handleChangePage(menu.path, menu.name)}
+                      style={{ cursor: "pointer" }}
                 >
                   {menu.icon && <menu.icon className="w-5 mr-2" />}
                   {menu.name}

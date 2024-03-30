@@ -59,9 +59,9 @@ export default function ProtectedPage() {
             ))} */}
           </ul>
 
-          <button className="btn btn-primary" onClick={fetchData}>
+          {/* <button className="btn btn-primary" onClick={fetchData}>
             Refresh
-          </button>
+          </button> */}
           <button className="btn btn-error" onClick={logoutHandler}>
             Logout
           </button>
