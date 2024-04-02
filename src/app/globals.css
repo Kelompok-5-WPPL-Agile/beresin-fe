@@ -28,4 +28,14 @@ body {
   background-color : #708CD5;
 }
 
+.btn-primary{
+  background-color : #708CD5;
+  color : white;
+  border : none;
+}
+
+.btn-primary:hover{
+  background-color : #5A70AA;
+}
+
 

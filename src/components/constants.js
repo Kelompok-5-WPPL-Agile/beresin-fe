@@ -18,7 +18,7 @@ export const MENU_LIST = [
   },
   {
     name: "Daftar Kategori",
-    path: "/",
+    path: "/categories",
     icon: Squares2X2Icon,
   },
   {
