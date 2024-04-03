@@ -53,8 +53,9 @@ export default function UsersPage() {
     const [data, setData] = useState([]);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [phone, setPhone] = useState('');
+    const [password, setPassword] = useState('');
+    const [formTitle, setFormTitle] = useState('');
     const [selectedRows, setSelectedRows] = useState([]);
 
     const fetchData = async () => {
@@ -94,19 +95,37 @@ export default function UsersPage() {
     //method store post
     const submitForm = async (e) => {
         e.preventDefault();
-        
+
         //init FormData
-        const formData = new FormData();
+        // const formData = new FormData();
 
         //append data
-        formData.append('name', name);
-        formData.append('email', email);
-        formData.append('password', password);
-        formData.append('phone', phone);
+        // formData.append('name', name);
+        // formData.append('email', email);
+        // formData.append('phone', phone);
+        // formData.append('password', password);
+
+        let formData = {
+            name: name,
+            email: email,
+            phone: phone,
+            password: password
+        }
+        
+        //set url
+        let url = null;
+        let msg = '';
+
+        if (selectedRows.length > 0) {
+            url = apiFetch.put(`/api/users/${selectedRows[0].id}`, formData)
+            msg = 'Berhasil ubah user'
+        } else {
+            url = apiFetch.post('/api/users', formData)
+            msg = 'Berhasil tambah user'
+        }
 
         //send data with API
-        await apiFetch.post('/api/users', formData)
-            .then((res) => {
+        await url.then((res) => {
                 console.log(res);
 
                 // close modal
@@ -115,7 +134,7 @@ export default function UsersPage() {
 
                 Swal.fire({
                     icon: "success",
-                    title: "Berhasil tambah user",
+                    title: msg,
                     showConfirmButton: false,
                     timer: 1500
                 });
@@ -126,6 +145,12 @@ export default function UsersPage() {
             })
             .catch(error => {
                 console.log('error: ', error);
+                document.getElementById('my_modal_3').close();
+                Swal.fire({
+                    icon: "error",
+                    title: "Gagal!",
+                    text: "Terjadi kesalahan di sistem. Silakan coba lagi.",
+                });
                 //set errors response to state "errors"
                 // setErrors(error.response.data);
             })
@@ -136,17 +161,77 @@ export default function UsersPage() {
     }, []);
 
     const handleEdit = () => {
+        // console.log('selected: ',selectedRows.length);
+        // console.log('selected: ',selectedRows[0].id);
+        setFormTitle('Form Ubah User')
+        document.getElementById("password").removeAttribute("required");
         document.getElementById('email').value = selectedRows[0].email;
         document.getElementById('name').value = selectedRows[0].name;
         document.getElementById('phone').value = selectedRows[0].phone;
+
+        setName(selectedRows[0].name)
+        setEmail(selectedRows[0].email)
+        setPhone(selectedRows[0].phone)
+        
         document.getElementById('my_modal_3').showModal()
-        // console.log('selected: ',selectedRows[0].email);
         // eslint-disable-next-line no-alert
         /* if (window.confirm(`Are you sure you want to delete:\r ${selectedRows.map(r => r.title)}?`)) {
         setToggleCleared(!toggleCleared);
         setData(differenceBy(data, selectedRows, 'title'));
         } */
     };
+
+    const openModal = () => {
+        setFormTitle('Form Tambah User')
+        document.getElementById('my_modal_3').showModal()
+        document.getElementById('name').value = ''
+        document.getElementById('email').value = ''
+        document.getElementById('phone').value = ''
+        document.getElementById('password').value = ''
+    };
+
+    const handleDelete = async () => {
+        if (selectedRows.length > 0) {
+            await Swal.fire({
+                title: "Yakin ingin menghapus?",
+                text: "Data tersebut akan hilang selamanya!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ya, hapus saja!",
+                cancelButtonText: "Batal",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    apiFetch.delete(`/api/users/${selectedRows[0].id}`)
+                    .then((response) => {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Berhasil hapus data user",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        
+                        //reload data
+                        fetchData();
+                    })
+                    .catch(error => {
+                        console.log('error: ', error);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Gagal!",
+                            text: "Terjadi kesalahan di sistem. Silakan coba lagi.",
+                        });
+                    })
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Belum pilih data user!"
+            });
+        }
+    }
 
     /* const contextActions = useMemo(() => {
         
@@ -168,11 +253,12 @@ export default function UsersPage() {
     return (
     <>
         <AdminLayout router={router}>
-                <button className="btn btn-primary mb-4 mr-2" onClick={() => document.getElementById('my_modal_3').showModal()}>Tambah</button>
-                <button type="button" className="btn btn-neutral" onClick={handleEdit}>Edit</button>
+                <button className="btn btn-primary mb-4 mr-2" onClick={openModal}>Tambah</button>
+                <button type="button" className="btn btn-neutral mr-2" onClick={handleEdit}>Edit</button>
+                <button type="button" className="btn btn-error" onClick={handleDelete}>Hapus</button>
                 <dialog id="my_modal_3" className="modal">
                 <div className="modal-box">
-                    <h3 className="font-bold text-lg mb-5">Form Tambah User</h3>
+                        <h3 className="font-bold text-lg mb-5">{formTitle}</h3>
                     {/* <p className="py-4">Press ESC key or click the button below to close</p> */}
                     <form method="dialog" onSubmit={submitForm}>
                         <label className="input input-bordered flex items-center gap-2 mb-3">
@@ -189,7 +275,7 @@ export default function UsersPage() {
                         </label>
                         <label className="input input-bordered flex items-center gap-2">
                             <KeyIcon className="w-4 h-4 opacity-70" />
-                            <input type="password" className="grow" autoComplete="off" placeholder="" onChange={(e) => setPassword(e.target.value)} required />
+                            <input type="password" id="password" className="grow" autoComplete="off" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
                         </label>
                         <div className="modal-action">
                             {/* if there is a button in form, it will close the modal */}

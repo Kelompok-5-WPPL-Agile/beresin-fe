@@ -84,6 +84,7 @@ export default function CategoriesPage() {
                                 placeholder="Name"
                                 autoComplete="off"
                                 onChange={(e) => setName(e.target.value)}
+                                // progressPending={true}
                                 required
                             />
                         </label>
