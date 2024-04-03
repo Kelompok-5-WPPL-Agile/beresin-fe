@@ -103,7 +103,7 @@ export default function CategoriesPage() {
                     </form>
                 </div>
             </dialog>
-            <DataTable columns={columns} data={data} pagination />
+            <DataTable columns={columns} data={data} selectableRows selectableRowsSingle pagination />
         </AdminLayout>
     );
 }

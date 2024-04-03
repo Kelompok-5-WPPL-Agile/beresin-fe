@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { apiFetch, logout } from "@/libs/auth";
 import moment from "moment";
 import { useRouter } from "next/navigation";
@@ -55,6 +55,7 @@ export default function UsersPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [phone, setPhone] = useState('');
+    const [selectedRows, setSelectedRows] = useState([]);
 
     const fetchData = async () => {
         // console.log(moment().seconds(+30).format());
@@ -129,6 +130,31 @@ export default function UsersPage() {
                 // setErrors(error.response.data);
             })
     }
+
+    const handleRowSelected = useCallback(state => {
+        setSelectedRows(state.selectedRows);
+    }, []);
+
+    const handleEdit = () => {
+        document.getElementById('email').value = selectedRows[0].email;
+        document.getElementById('name').value = selectedRows[0].name;
+        document.getElementById('phone').value = selectedRows[0].phone;
+        document.getElementById('my_modal_3').showModal()
+        // console.log('selected: ',selectedRows[0].email);
+        // eslint-disable-next-line no-alert
+        /* if (window.confirm(`Are you sure you want to delete:\r ${selectedRows.map(r => r.title)}?`)) {
+        setToggleCleared(!toggleCleared);
+        setData(differenceBy(data, selectedRows, 'title'));
+        } */
+    };
+
+    /* const contextActions = useMemo(() => {
+        
+        return <button type="button" className="btn btn-neutral" onClick={handleEdit}>Edit</button>;
+        // <Button key="edit" onClick={handleEdit} style={{
+        //     backgroundColor: 'darkblue'
+        // }} icon>Edit</Button>;
+    }, [data, selectedRows]); */
     
     //hook useEffect
     useEffect(() => {
@@ -142,7 +168,8 @@ export default function UsersPage() {
     return (
     <>
         <AdminLayout router={router}>
-                <button className="btn btn-primary mb-4" onClick={()=>document.getElementById('my_modal_3').showModal()}>Tambah</button>
+                <button className="btn btn-primary mb-4 mr-2" onClick={() => document.getElementById('my_modal_3').showModal()}>Tambah</button>
+                <button type="button" className="btn btn-neutral" onClick={handleEdit}>Edit</button>
                 <dialog id="my_modal_3" className="modal">
                 <div className="modal-box">
                     <h3 className="font-bold text-lg mb-5">Form Tambah User</h3>
@@ -150,15 +177,15 @@ export default function UsersPage() {
                     <form method="dialog" onSubmit={submitForm}>
                         <label className="input input-bordered flex items-center gap-2 mb-3">
                             <UserIcon className="w-4 h-4 opacity-70" />
-                            <input type="text" className="grow" placeholder="Name" autoComplete="off" onChange={(e) => setName(e.target.value)} required />
+                            <input type="text" id="name" className="grow" placeholder="Name" autoComplete="off" onChange={(e) => setName(e.target.value)} required />
                         </label>
                         <label className="input input-bordered flex items-center gap-2 mb-3">
                             <EnvelopeIcon className="w-4 h-4 opacity-70" />
-                            <input type="email" className="grow" placeholder="Email" autoComplete="off" onChange={(e) => setEmail(e.target.value)} required />
+                            <input type="email" id="email" className="grow" placeholder="Email" autoComplete="off" onChange={(e) => setEmail(e.target.value)} required />
                         </label>
                         <label className="input input-bordered flex items-center gap-2 mb-3">
                             <PhoneIcon className="w-4 h-4 opacity-70" />
-                            <input type="text" className="grow" placeholder="No. telepon (08123456789)" autoComplete="off" onChange={(e) => setPhone(e.target.value)} required />
+                            <input type="text" id="phone" className="grow" placeholder="No. telepon (08123456789)" autoComplete="off" onChange={(e) => setPhone(e.target.value)} required />
                         </label>
                         <label className="input input-bordered flex items-center gap-2">
                             <KeyIcon className="w-4 h-4 opacity-70" />
@@ -182,7 +209,11 @@ export default function UsersPage() {
                 <DataTable
                     columns={columns}
                     data={data}
+                    selectableRows
+                    selectableRowsSingle
                     pagination
+                    onSelectedRowsChange={handleRowSelected}
+                    // contextActions={contextActions}
                 />
         </AdminLayout>
     </>
