@@ -83,7 +83,7 @@ export default function CategoriesPage() {
     }, []);
 
     const handleEdit = () => {
-        setFormTitle("Form Ubah User");
+        setFormTitle("Form Ubah Kategori");
         document.getElementById("name").value = selectedRows[0].name;
 
         setName(selectedRows[0].name);
@@ -92,7 +92,7 @@ export default function CategoriesPage() {
     };
 
     const openModal = () => {
-        setFormTitle("Form Tambah User");
+        setFormTitle("Form Tambah Kategori");
         document.getElementById("my_modal_3").showModal();
         document.getElementById("name").value = "";
     };
@@ -115,7 +115,7 @@ export default function CategoriesPage() {
                         .then((response) => {
                             Swal.fire({
                                 icon: "success",
-                                title: "Berhasil hapus data user",
+                                title: "Berhasil hapus data kategori",
                                 showConfirmButton: false,
                                 timer: 1500,
                             });
