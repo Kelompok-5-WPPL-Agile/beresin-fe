@@ -63,7 +63,7 @@ export default function UsersPage() {
         //fetch user from Rest API
         await apiFetch.get('/api/users')
             .then((response) => {
-                // console.log('dataa ', response);
+                //console.log('dataa ', response);
                 //set response user to state
                 setData(response.data.data);
                 setColumns([
