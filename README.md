@@ -46,7 +46,7 @@ pass: admin
 ## Beresin
 ![Login](public/assets//images/login.jpeg)
 ![Dashboard](public/assets//images/dashboard.jpeg)
-![Categories](public/assets//images/kategori.jpeg.jpeg)
+![Categories](public/assets//images/kategori.jpeg)
 ![Modal Categories](public/assets//images/modal-kategori.jpeg)
 ![Users](public/assets//images/users.jpeg)
 ![Modal Users](public/assets/images//modal-users.jpeg)
