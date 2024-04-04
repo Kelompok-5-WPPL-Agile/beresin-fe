@@ -42,3 +42,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ## dummy
 user: admin
 pass: admin
+
+## Beresin
+![Login](public/assets//images/login.jpeg)
+![Dashboard](public/assets//images/dashboard.jpeg)
+![Categories](public/assets//images/kategori.jpeg.jpeg)
+![Modal Categories](public/assets//images/modal-kategori.jpeg)
+![Users](public/assets//images/users.jpeg)
+![Modal Users](public/assets/images//modal-users.jpeg)
