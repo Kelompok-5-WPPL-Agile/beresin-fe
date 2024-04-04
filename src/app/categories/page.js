@@ -17,7 +17,7 @@ export default function CategoriesPage() {
 
     const fetchData = async () => {
         await apiFetch.get("/api/categories").then((response) => {
-            console.log(response);
+            //console.log(response);
             setData(response.data.data);
             setColumns([
                 {
@@ -135,7 +135,7 @@ export default function CategoriesPage() {
         } else {
             Swal.fire({
                 icon: "error",
-                title: "Belum pilih data user!",
+                title: "Belum pilih data kategori!",
             });
         }
     };

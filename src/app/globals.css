@@ -38,4 +38,10 @@ body {
   background-color : #5A70AA;
 }
 
+.link:hover{
+  cursor : pointer;
+}
+
+
+
 
