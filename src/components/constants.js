@@ -13,7 +13,7 @@ export const MENU_LIST = [
   },
   {
     name: "Task Menu",
-    path: "/",
+    path: "/task",
     icon: PencilSquareIcon,
   },
   {
