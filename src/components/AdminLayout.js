@@ -2,15 +2,29 @@ import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { MENU_LIST } from "./constants";
 import styles from "../app/globals.css";
-import { BellIcon, Bars3BottomLeftIcon } from "@heroicons/react/24/outline";
+import { BellIcon, Bars3BottomLeftIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import {  logout, apiFetch} from "@/libs/auth";
 
-const Layout = ({ children }) => {
+export default function Layout({ children}) {
   const router = useRouter();
   const pathName = usePathname();
   const [activePath, setActivePath] = useState(pathName);
   const [activeMenu, setActiveMenu] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [data, setData] = useState([]);
 
+
+  const fetchData = async () => {
+    await apiFetch.get("/api/profile").then((response) => {
+        //console.log(response);
+        setData(response.data.data);
+    });
+};
+
+
+useEffect(() => {
+    fetchData();
+}, []);
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -42,11 +56,21 @@ const Layout = ({ children }) => {
     router.push(path);
     setIsOpen(false); 
   };
-  
+
+  const toProfile = () => {
+    router.push("/profile");
+  };
+
+  const logoutHandler = async () => {
+    await logout();
+    router.push("/login");
+}
+
 
 
   return (
     <div className="w-full h-screen relative flex-1 flex-row">
+      {/* Sidebar */}
       <button
         data-drawer-target="beresin-sidebar"
         data-drawer-toggle="beresin-sidebar"
@@ -65,39 +89,41 @@ const Layout = ({ children }) => {
         } sm:translate-x-0 bg-primary text-white`}
         aria-label="Sidebar"
       >
+        {/* Sidebar Content */}
         <div className="flex items-center justify-center py-10">
           <h2 className="font-bold">BERESIN</h2>
         </div>
         <div className="h-full px-6 py-4 overflow-y-auto">
           <ul>
             {MENU_LIST.map((menu, index) => {
-              return (
-                <li
-                  key={index}
-                  className={
-                    activePath === menu.path
-                      ? "flex flex-row items-center px-3 py-1 rounded-md active mb-4"
-                      : "flex flex-row items-center px-3 py-1 rounded-md mb-4"
-                  }
-                      onClick={() => handleChangePage(menu.path, menu.name)}
-                      style={{ cursor: "pointer" }}
-                >
-                  {menu.icon && <menu.icon className="w-5 mr-2" />}
-                  {menu.name}
-                </li>
-              );
+              if (menu.name !== "Profile") {
+                return (
+                  <li
+                    key={index}
+                    className={
+                      activePath === menu.path
+                        ? "flex flex-row items-center px-3 py-1 rounded-md active mb-4"
+                        : "flex flex-row items-center px-3 py-1 rounded-md mb-4"
+                    }
+                    onClick={() => handleChangePage(menu.path, menu.name)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {menu.icon && <menu.icon className="w-5 mr-2" />}
+                    {menu.name}
+                  </li>
+                );
+              }
             })}
           </ul>
         </div>
       </aside>
 
+      {/* Main Content */}
       <div className="p-5 sm:ml-64 h-screen">
         <header className="px-12 flex flex-row items-center justify-between">
-        
           <h1 className="font-bold text-3xl text-gray-600">
             {activeMenu ? activeMenu : ""}
           </h1>
-
           <div className="flex flex-row items-center">
             <BellIcon className=" w-8 h-8 mr-3" />
             <div className="avatar">
@@ -105,14 +131,14 @@ const Layout = ({ children }) => {
                 <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
               </div>
             </div>
-            <details className="dropdown">
-              <summary className="m-1 btn">Yourname</summary>
+            <details className="dropdown ">
+              <summary className="btn ml-3 btn-primary">{data.email}<ChevronDownIcon className=" w-4 h-4" /></summary>
               <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
                 <li>
-                  <a>Profile</a>
+                  <a onClick={toProfile}>Profile</a>
                 </li>
                 <li>
-                  <a className="text-red-500">Logout</a>
+                  <a className="text-red-500" onClick={logoutHandler}>Logout</a>
                 </li>
               </ul>
             </details>
@@ -123,5 +149,3 @@ const Layout = ({ children }) => {
     </div>
   );
 };
-
-export default Layout;

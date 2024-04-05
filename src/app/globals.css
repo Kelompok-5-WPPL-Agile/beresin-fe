@@ -46,6 +46,10 @@ body {
   color: #708CD5;
 }
 
+.bg-profile{
+  background-color: #F4F2FF;
+}
+
 @media screen and (max-width: 1120px) {
   .validasi-content {
     flex-direction: column;

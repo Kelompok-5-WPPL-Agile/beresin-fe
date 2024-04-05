@@ -26,4 +26,10 @@ export const MENU_LIST = [
     path: "/users",
     icon: UserGroupIcon,
   },
+
+  {
+    name: "Profile",
+    path: "/profile",
+    icon: UserGroupIcon,
+  },
 ];
