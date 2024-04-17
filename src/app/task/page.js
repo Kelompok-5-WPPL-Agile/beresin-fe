@@ -15,6 +15,7 @@ export default function TaskPage() {
     const [data, setData] = useState([]);
     const [categories, setCategories] = useState([]);
     const [users, setUsers] = useState([]);
+    const [profile, setProfile] = useState([]);
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState(0);
@@ -89,6 +90,14 @@ export default function TaskPage() {
         });
     };
 
+    /* fetch profile (sementara) */
+    const fetchProfile = async () => {
+        await apiFetch.get("/api/profile").then((response) => {
+            //console.log(response);
+            setProfile(response.data.data);
+        });
+    };
+
     /* fetch data categories */
     const fetchCategories = async () => {
         await apiFetch.get("/api/categories").then((response) => {
@@ -100,9 +109,12 @@ export default function TaskPage() {
     const submitForm = async (e) => {
         e.preventDefault();
 
+        // console.log('pic', profile.id);
+        // return;
+
         let formData = {
             category_id: category,
-            pic_id: pic,
+            pic_id: profile.id,
             title: title,
             description: description,
             due_at: moment(due_at.startDate).format("YYYY-MM-DD HH:mm:ss"),
@@ -251,6 +263,7 @@ export default function TaskPage() {
     };
 
     useEffect(() => {
+        fetchProfile();
         fetchData();
         fetchUsers();
         fetchCategories();
@@ -346,7 +359,7 @@ export default function TaskPage() {
                                 required
                             />
                         </label>
-                        <label className="form-control gap-2 mb-3">
+                        <label className="form-control gap-2 mb-3" style={ profile.is_leader < 1 ? { display: 'none' } : { display: 'block' } }>
                             <div className="label">
                                 <span className="label-text">PIC</span>
                             </div>

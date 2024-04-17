@@ -49,7 +49,7 @@ export default function ProtectedPage() {
     return (
       <>
         <AdminLayout router={router}>
-          <h1>Dashboard</h1>
+          <h1>Dashboard page</h1>
           {/* <p>Categories</p> */}
           <ul>
             {/* {categories.map((category) => (
@@ -62,9 +62,9 @@ export default function ProtectedPage() {
           {/* <button className="btn btn-primary" onClick={fetchData}>
             Refresh
           </button> */}
-          <button className="btn btn-error" onClick={logoutHandler}>
+          {/* <button className="btn btn-error" onClick={logoutHandler}>
             Logout
-          </button>
+          </button> */}
         </AdminLayout>
       </>
     );
