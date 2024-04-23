@@ -24,7 +24,7 @@ export default function ProfilPage() {
     return (
         <AdminLayout router={router}>
             <div className="flex justify-center items-center mt-32">
-                <div className="bg-profile  w-1/2 flex flex-col justify-center items-center rounded-lg shadow-slate-300 shadow-md">
+                <div className="bg-profile profile  w-1/2 flex flex-col justify-center items-center rounded-lg shadow-slate-300 shadow-md">
                     <div className="-translate-y-24 w-full flex flex-col justify-center items-center">
                         <UserCircleIcon className="w-48 h-48 text-gray-500 mb-5" />
                         <div className="flex justify-between w-3/4 bg-white py-2 px-4 rounded-md mb-3">

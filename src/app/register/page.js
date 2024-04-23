@@ -31,7 +31,7 @@ export default function RegisterPage() {
 
     return (
         <div>
-            <div className="flex flex-col px-48 py-12">
+            <div className="flex flex-col px-48 py-12 container">
                 <div className="flex">
                     <h1 className="font-extrabold text-xl">BERESIN</h1>
                 </div>

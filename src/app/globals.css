@@ -61,6 +61,13 @@ body {
   .image-content{
     width: 100%;
   }
+  .container {
+    padding: 3rem 2rem;
+  }
+  
+  .profile { 
+    width : 100%;
+  }
 }
 
 

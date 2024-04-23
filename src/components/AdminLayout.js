@@ -69,7 +69,7 @@ useEffect(() => {
 
 
   return (
-    <div className="w-full h-screen relative flex-1 flex-row">
+    <div className="w-full h-full relative flex-1 flex-row">
       {/* Sidebar */}
       <button
         data-drawer-target="beresin-sidebar"
@@ -84,7 +84,7 @@ useEffect(() => {
       </button>
       <aside
         id="beresin-sidebar"
-        className={`fixed top-0 left-0 z-40 w-60 h-screen transition-transform ${
+        className={`fixed top-0 left-0 z-40 w-60 h-full transition-transform ${
           isOpen ? "" : "-translate-x-full"
         } sm:translate-x-0 bg-primary text-white`}
         aria-label="Sidebar"
@@ -120,7 +120,7 @@ useEffect(() => {
 
       {/* Main Content */}
       <div className="p-5 sm:ml-64 h-screen">
-        <header className="px-12 flex flex-row items-center justify-between">
+        <header className="flex flex-row items-center justify-between">
           <h1 className="font-bold text-3xl text-gray-600">
             {activeMenu ? activeMenu : ""}
           </h1>
