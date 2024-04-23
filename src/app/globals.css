@@ -46,6 +46,7 @@ body {
   color: #708CD5;
 }
 
+
 .bg-profile{
   background-color: #F4F2FF;
 }
@@ -67,6 +68,17 @@ body {
   
   .profile { 
     width : 100%;
+  }
+
+  .card-total{
+    width: 100%;
+    margin-left : 0;
+    margin-top: 0.5rem;
+  }
+
+  .card-content{
+    justify-content: normal;
+    flex-direction: column;
   }
 }
 
