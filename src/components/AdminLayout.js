@@ -12,12 +12,19 @@ export default function Layout({ children}) {
   const [activeMenu, setActiveMenu] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [data, setData] = useState([]);
+  const [avatarPlaceholder, setAvatarPlaceholder] = useState("");
 
 
   const fetchData = async () => {
     await apiFetch.get("/api/profile").then((response) => {
         //console.log(response);
         setData(response.data.data);
+
+        let word = response.data.data.name;
+        var firstLetter = word.charAt(0);
+
+        // Mengonversi huruf pertama menjadi huruf kapital
+        setAvatarPlaceholder(firstLetter.toUpperCase());
     });
 };
 
@@ -126,13 +133,14 @@ useEffect(() => {
           </h1>
           <div className="flex flex-row items-center">
             <BellIcon className=" w-8 h-8 mr-3" />
-            <div className="avatar">
-              <div className="w-10 rounded-full">
-                <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
-              </div>
+            <div className="avatar placeholder">
+                <div className="bg-neutral text-neutral-content rounded-full w-10 rounded-full">
+                    <span class="text-xl">{avatarPlaceholder}</span>
+                {/* <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" /> */}
+                </div>
             </div>
             <details className="dropdown ">
-              <summary className="btn ml-3 btn-primary">{data.email}<ChevronDownIcon className=" w-4 h-4" /></summary>
+              <summary className="btn ml-3 btn-primary">{data.name}<ChevronDownIcon className=" w-4 h-4" /></summary>
               <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
                 <li>
                   <a onClick={toProfile}>Profile</a>
