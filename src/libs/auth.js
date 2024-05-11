@@ -4,12 +4,15 @@ import axios from "axios";
 import Cookies from 'js-cookie';
 import { NextResponse } from "next/server";
 import moment from 'moment-timezone';
+import { redirect } from 'next/navigation'
+// import { useRouter } from "next/navigation";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_BACKEND;
 // const cookies = new Cookies();
 // const accessToken = Cookies.get("token") ?? null;
 // console.log('access', accessToken);
 // moment.locale("id");
+// const router = useRouter();
 const currentDate = new Date();
 
 // Get the current time in Asia/Jakarta time zone
@@ -64,6 +67,27 @@ export const apiFetch = axios.create({
         'Authorization': `Bearer ${Cookies.get("token")}`
     }
 })
+
+apiFetch.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        // console.log('err', error.response.status);
+        // return;
+        if (error.response.status === 401) {
+            // return NextResponse.redirect('/login');
+            Cookies.remove("token");
+            window.location.href = '/login';
+            // Clear token/cookies here
+            // Example: document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+            
+            // Redirect to login page
+            // router.push('/login');
+        }
+        return Promise.reject(error);
+    }
+);
 
 /* apiFetch.interceptors.request.use(async (config) => {
     if (isAccessTokenValid(config.headers.Authorization.split(' ')[1])) {

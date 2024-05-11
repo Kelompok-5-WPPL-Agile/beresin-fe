@@ -31,7 +31,8 @@ export default function TaskPage() {
     const [status, setStatus] = useState('');
     const [formTitle, setFormTitle] = useState('');
     const [selectedRows, setSelectedRows] = useState([]);
-
+    const [file, setFile] = useState(null);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const fetchData = async () => {
         await apiFetch.get("/api/tasks").then((response) => {
@@ -109,12 +110,21 @@ export default function TaskPage() {
     const submitForm = async (e) => {
         e.preventDefault();
 
-        // console.log('pic', profile.id);
-        // return;
+        const formData = new FormData();
+        formData.append('category_id', category);
+        formData.append('pic_id', pic);
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('due_at', moment(due_at.startDate).format("YYYY-MM-DD HH:mm:ss"));
+        formData.append('finished_at', moment(due_at.endDate).format("YYYY-MM-DD HH:mm:ss"));
+        formData.append('estimation', estimation);
+        formData.append('priority', priority);
+        formData.append('effort', effort);
+        formData.append('status', status);
 
-        let formData = {
+        /* let formData = {
             category_id: category,
-            pic_id: profile.id,
+            pic_id: pic,
             title: title,
             description: description,
             due_at: moment(due_at.startDate).format("YYYY-MM-DD HH:mm:ss"),
@@ -123,16 +133,30 @@ export default function TaskPage() {
             priority: priority,
             effort: effort,
             status: status,
-        };
+        }; */
+
+        if (file) {
+            formData.append('file', file);
+        }
 
         let url = null;
         let msg = "";
 
+        console.log('formData', formData);
+
         if (selectedRows.length > 0) {
-            url = apiFetch.put(`/api/tasks/${selectedRows[0].id}`, formData);
+            url = apiFetch.put(`/api/tasks/${selectedRows[0].id}`, formData, {
+                headers: {
+                    'Content-Type': formTitle == 'Form Ubah User' ? 'application/json' : 'multipart/form-data'
+                }
+            });
             msg = "Berhasil ubah task";
         } else {
-            url = apiFetch.post("/api/tasks", formData);
+            url = apiFetch.post("/api/tasks", formData, {
+                headers: {
+                    'Content-Type': formTitle == 'Form Ubah User' ? 'application/json' : 'multipart/form-data'
+                }
+            });
             msg = "Berhasil tambah task";
         }
 
@@ -170,6 +194,37 @@ export default function TaskPage() {
     const handleRowSelected = useCallback((state) => {
         setSelectedRows(state.selectedRows);
     }, []);
+
+    const handleFileChange = (event) => {
+        const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        const maxFileSize = 4 * 1024 * 1024; // 4MB dalam bytes
+
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+            if (allowedFileTypes.includes(selectedFile.type)) {
+                if (selectedFile.size <= maxFileSize) {
+                    setFile(selectedFile);
+                    // console.log('files', event.target.files[0]);
+                    // console.log('Berhasil file');
+                    setErrorMessage('');
+                } else {
+                    // Hapus nilai input file
+                    event.target.value = null;
+                    setFile(null);
+                    setErrorMessage('Ukuran file terlalu besar! Maksimal 4MB.');
+                }
+            } else {
+                // Hapus nilai input file
+                event.target.value = null;
+                setFile(null);
+                setErrorMessage('Format file hanya dibolehkan .jpg, .png, .jpeg, .pdf, .doc, .docx!');
+            }
+        }
+    };
+
+    const handleCloseToast = () => {
+        setErrorMessage('');
+    };
 
     const handleEdit = () => {
         console.log('selected: ',selectedRows[0]);
@@ -211,6 +266,7 @@ export default function TaskPage() {
             startDate: null,
             endDate: null 
         })
+        setFile(null)
         // document.getElementById("due_at").value = moment().format("DD/MM/YYYY");
         document.getElementById("description").value = "";
         document.getElementById("estimation").value = "";
@@ -271,6 +327,17 @@ export default function TaskPage() {
 
     return (
         <AdminLayout router={router}>
+            {/* {errorMessage && (
+                <div className="toast toast-top toast-end" style={{ zIndex: 9999 }}>
+                    <div className="alert alert-error">
+                        <span>{errorMessage}</span>
+                        <button onClick={handleCloseToast} className="btn btn-ghost btn-small">
+                            X
+                        </button>
+                    </div>
+                </div>
+            )} */}
+
             <button className="btn btn-primary mb-4 mr-2" onClick={openModal}>
                 Tambah
             </button>
@@ -359,7 +426,9 @@ export default function TaskPage() {
                                 required
                             />
                         </label>
-                        <label className="form-control gap-2 mb-3" style={ profile.is_leader < 1 ? { display: 'none' } : { display: 'block' } }>
+                        <label className="form-control gap-2 mb-3" style={profile.is_leader < 1 ? { display: 'none' } : {}
+                            // { display: 'block' }
+                        }>
                             <div className="label">
                                 <span className="label-text">PIC</span>
                             </div>
@@ -405,6 +474,25 @@ export default function TaskPage() {
                                 <option value={'reopen'}>Reopen</option>
                             </select>
                         </label>
+                            {/* style={profile.is_leader < 1 ? { display: 'none' } : { display: 'block' }} */}
+                        <label className="form-control gap-2 mb-3">
+                            <div className="label">
+                                <span className="label-text">Lampiran Pendukung (Opsional)</span>
+                            </div>
+                            <input type="file" className={errorMessage ? 'file-input file-input-bordered file-input-error' : 'file-input file-input-bordered'} onChange={handleFileChange} />
+                            {errorMessage ? (
+                                <div className="text-red-600">
+                                    <span>{errorMessage}</span>
+                                </div>
+                            ) : ''}
+                        </label>
+                            {/* w-full max-w-xs */}
+                            {/* <select id="pic_id" className="select select-bordered" onChange={(e) => setPic(e.target.value)} required>
+                                <option value={0} disabled selected>Pilih PIC</option>
+                                {users.map((user) => (
+                                    <option value={user.id}>{user.name}</option>
+                                ))}
+                            </select> */}
                         <div className="modal-action">
                             <button type="submit" className="btn btn-primary">
                                 Save

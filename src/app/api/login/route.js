@@ -4,8 +4,11 @@ import { API_URL } from "@/libs/auth";
 import axios from "axios";
 import { NextResponse } from "next/server";
 import moment from 'moment-timezone';
+import Cookies from 'js-cookie';
 
 export async function POST(request) {
+    Cookies.remove('token'); // remove token if exist
+
     // moment.locale("id");
     const body = await request.json();
     
