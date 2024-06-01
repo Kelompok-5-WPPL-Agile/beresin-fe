@@ -33,6 +33,7 @@ export default function TaskPage() {
     const [selectedRows, setSelectedRows] = useState([]);
     const [file, setFile] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
+    const [errors, setErrors] = useState({});
 
     const fetchData = async () => {
         await apiFetch.get("/api/tasks").then((response) => {
@@ -107,8 +108,48 @@ export default function TaskPage() {
         });
     };
 
+    const validateInputs = () => {
+        const errors = {};
+        if (!title) {
+            errors.title = "Judul harus diisi.";
+        }
+        if (!description) {
+            errors.description = "Deskripsi harus diisi.";
+        }
+        if (!category) {
+            errors.category = "Kategori harus diisi.";
+        }
+
+        if (!due_at.startDate){
+            errors.due_at = "Deadline harus diisi"
+        }
+
+        if (!estimation) {
+            errors.estimation = "Estimasi harus diisi.";
+        }
+        if (!pic) {
+            errors.pic = "PIC harus diisi.";
+        }
+        if (!priority) {
+            errors.priority = "Prioritas harus diisi.";
+        }
+        if (!effort) {
+            errors.effort = "Effort harus diisi.";
+        }
+        if (!status) {
+            errors.status = "Status harus diisi.";
+        }
+        return errors;
+    };
+
     const submitForm = async (e) => {
         e.preventDefault();
+
+        const validationErrors = validateInputs();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
 
         const formData = new FormData();
         formData.append('category_id', category);
@@ -227,6 +268,7 @@ export default function TaskPage() {
     };
 
     const handleEdit = () => {
+        if(selectedRows.length > 0){
         console.log('selected: ',selectedRows[0]);
         setFormTitle('Form Ubah User')
         document.getElementById('title').value = selectedRows[0].title;
@@ -252,8 +294,16 @@ export default function TaskPage() {
         setPriority(selectedRows[0].priority)
         setEffort(selectedRows[0].effort)
         setStatus(selectedRows[0].status)
-        
+        setErrors({});
         document.getElementById('my_modal_3').showModal()
+        
+        }else{
+            Swal.fire({
+                icon: "error",
+                title: "Belum pilih data task!",
+            });
+        }
+        
     };
 
     const openModal = () => {
@@ -273,6 +323,18 @@ export default function TaskPage() {
         document.getElementById("priority").value = "null";
         document.getElementById("effort").value = "null";
         document.getElementById("status").value = "null";
+        setTitle('');
+        setDescription('');
+        setCategory(0);
+        setDue_at({ startDate: null, endDate: null });
+        setEstimation('');
+        setPriority('');
+        setEffort('');
+        setStatus('');
+        setPic('');
+        setFile(null);
+
+        setErrors({});
     };
 
     const handleDelete = async () => {
@@ -366,8 +428,8 @@ export default function TaskPage() {
                                 placeholder="Judul"
                                 autoComplete="off"
                                 onChange={(e) => setTitle(e.target.value)}
-                                required
                             />
+                            {errors.title && <span className="text-red-500">{errors.title}</span>}
                         </label>
                         {/* <label className="input input-bordered flex items-center gap-2 mb-3">
                             <Squares2X2Icon className="w-4 h-4 opacity-70" />
@@ -376,18 +438,20 @@ export default function TaskPage() {
                             <div className="label">
                                 <span className="label-text">Deskripsi</span>
                             </div>
-                            <textarea id="description" className="textarea textarea-bordered" placeholder="Deskripsi" autoComplete="off" onChange={(e) => setDescription(e.target.value)} required></textarea>
+                            <textarea id="description" className="textarea textarea-bordered" placeholder="Deskripsi" autoComplete="off" onChange={(e) => setDescription(e.target.value)} ></textarea>
+                            {errors.description && <span className="text-red-500">{errors.description}</span>}
                         </label>
                         <label className="form-control gap-2 mb-3">
                             <div className="label">
                                 <span className="label-text">Kategori</span>
                             </div>
-                            <select id="category_id" className="select select-bordered" onChange={(e) => setCategory(e.target.value)} required>
+                            <select id="category_id" className="select select-bordered" onChange={(e) => setCategory(e.target.value)} >
                                 <option value={0} disabled selected>Pilih Kategori</option>
                                 {categories.map((category) => (
                                     <option value={category.id}>{category.name}</option>
                                 ))}
                             </select>
+                            {errors.category && <span className="text-red-500">{errors.category}</span>}
                         </label>
                         <label className="form-control gap-2 mb-3">
                             <div className="label">
@@ -411,6 +475,7 @@ export default function TaskPage() {
                                 onChange={(e) => setDue_at(e.target.value)}
                                 required
                             /> */}
+                            {errors.due_at && <span className="text-red-500">{errors.due_at}</span>}
                         </label>
                         <label className="form-control gap-2 mb-3">
                             <div className="label">
@@ -423,8 +488,9 @@ export default function TaskPage() {
                                 placeholder="Estimasi"
                                 autoComplete="off"
                                 onChange={(e) => setEstimation(e.target.value)}
-                                required
+                                
                             />
+                            {errors.estimation && <span className="text-red-500">{errors.estimation}</span>}
                         </label>
                         <label className="form-control gap-2 mb-3" style={profile.is_leader < 1 ? { display: 'none' } : {}
                             // { display: 'block' }
@@ -432,12 +498,13 @@ export default function TaskPage() {
                             <div className="label">
                                 <span className="label-text">PIC</span>
                             </div>
-                            <select id="pic_id" className="select select-bordered" onChange={(e) => setPic(e.target.value)} required>
+                            <select id="pic_id" className="select select-bordered" onChange={(e) => setPic(e.target.value)} >
                                 <option value={0} disabled selected>Pilih PIC</option>
                                 {users.map((user) => (
                                     <option value={user.id}>{user.name}</option>
                                 ))}
                             </select>
+                            {errors.pic && <span className="text-red-500">{errors.pic}</span>}
                         </label>
                         <label className="form-control gap-2 mb-3">
                             <div className="label">
@@ -449,6 +516,7 @@ export default function TaskPage() {
                                 <option value={'high'}>High</option>
                                 <option value={'urgent'}>Urgent</option>
                             </select>
+                            {errors.priority && <span className="text-red-500">{errors.priority}</span>}
                         </label>
                         <label className="form-control gap-2 mb-3">
                             <div className="label">
@@ -460,6 +528,7 @@ export default function TaskPage() {
                                 <option value={'medium'}>Medium</option>
                                 <option value={'hard'}>Hard</option>
                             </select>
+                            {errors.effort && <span className="text-red-500">{errors.effort}</span>}
                         </label>
                         <label className="form-control gap-2 mb-3">
                             <div className="label">
@@ -473,6 +542,7 @@ export default function TaskPage() {
                                 <option value={'closed'}>Closed</option>
                                 <option value={'reopen'}>Reopen</option>
                             </select>
+                            {errors.status && <span className="text-red-500">{errors.status}</span>}
                         </label>
                             {/* style={profile.is_leader < 1 ? { display: 'none' } : { display: 'block' }} */}
                         <label className="form-control gap-2 mb-3">

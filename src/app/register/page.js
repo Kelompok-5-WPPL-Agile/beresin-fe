@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { EnvelopeIcon, LockClosedIcon , UserIcon , DevicePhoneMobileIcon} from "@heroicons/react/20/solid";
+import Swal from "sweetalert2";
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -10,19 +11,74 @@ export default function RegisterPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [phone, setPhone] = useState("");
+    const [errors, setErrors] = useState({});
+
+    const validate = () => {
+        const newErrors = {};
+        if (!name) newErrors.name = "Name is required";
+        if (!email) newErrors.email = "Email is required";
+        else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Email is invalid";
+        if (!password) newErrors.password = "Password is required";
+        else if (password.length < 8) newErrors.password = "Password must be at least 8 characters long";
+        if (!phone) newErrors.phone = "Phone number is required";
+        else if (!/^\d{10,}$/.test(phone)) newErrors.phone = "Phone number is invalid";
+        return newErrors;
+    };
+
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const res = await fetch("/api/register", {
-            method: "POST",
-            body: JSON.stringify({ name, email, password, phone }),
-        });
-        const { success } = await res.json();
-        if (success) {
-            router.push("/login");
-        } else {
-            alert("Register failed");
+        const newErrors = validate();
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
         }
+        try {
+            const res = await fetch("/api/register", {
+                method: "POST",
+                body: JSON.stringify({ name, email, password, phone }),
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            });
+            const { success } = await res.json();
+            if (success) {
+                router.push("/login");
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Register gagal!",
+                    text: "Terjadi kesalahan di sistem. Silakan coba lagi!",
+                });
+            }
+        } catch (error) {
+            alert("An error occurred: " + error.message);
+        }
+    };
+
+    const handleChange = (field, value) => {
+        let newErrors = { ...errors };
+        if (field === "name") {
+            setName(value);
+            if (!value) newErrors.name = "Name is required";
+            else delete newErrors.name;
+        } else if (field === "email") {
+            setEmail(value);
+            if (!value) newErrors.email = "Email is required";
+            else if (!/\S+@\S+\.\S+/.test(value)) newErrors.email = "Email is invalid";
+            else delete newErrors.email;
+        } else if (field === "password") {
+            setPassword(value);
+            if (!value) newErrors.password = "Password is required";
+            else if (value.length < 8) newErrors.password = "Password must be at least 8 characters long";
+            else delete newErrors.password;
+        } else if (field === "phone") {
+            setPhone(value);
+            if (!value) newErrors.phone = "Phone number is required";
+            else if (!/^\d{10,}$/.test(value)) newErrors.phone = "Phone number is invalid";
+            else delete newErrors.phone;
+        }
+        setErrors(newErrors);
     };
 
     const toLogin = () => {
@@ -47,21 +103,23 @@ export default function RegisterPage() {
                                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center">
                                             <EnvelopeIcon className="w-5 h-5 opacity-70 text-primary" />
                                         </span>
-                                        <input type="text" className="input input-bordered pl-10 w-full max-w-full" value={email} onChange={(e) => setEmail(e.target.value)} />
+                                        <input type="text" className="input input-bordered pl-10 w-full max-w-full" value={email} onChange={(e) => handleChange("email", e.target.value)} />
                                     </div>
+                                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                                 </label>
                             </div>
                             <div className="form-control">
                                 <label className="form-control w-full max-w-full mb-2">
                                     <div className="label mb-2">
-                                        <span className="label-text text-md font-medium">Userame</span>
+                                        <span className="label-text text-md font-medium">Username</span>
                                     </div>
                                     <div className="relative">
                                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center">
                                             <UserIcon className="w-5 h-5 opacity-70 text-primary" />
                                         </span>
-                                        <input type="text" className="input input-bordered pl-10 w-full max-w-full" value={name} onChange={(e) => setName(e.target.value)} />
+                                        <input type="text" className="input input-bordered pl-10 w-full max-w-full" value={name} onChange={(e) => handleChange("name", e.target.value)} />
                                     </div>
+                                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                                 </label>
                             </div>
                             <div className="form-control">
@@ -73,8 +131,9 @@ export default function RegisterPage() {
                                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center">
                                             <LockClosedIcon className="w-5 h-5 opacity-70 text-primary" />
                                         </span>
-                                        <input type="password" className="input input-bordered pl-10 w-full max-w-full" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                                        <input type="password" className="input input-bordered pl-10 w-full max-w-full" value={password} onChange={(e) => handleChange("password", e.target.value)}/>
                                     </div>
+                                    {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                                 </label>
                             </div>
                             <div className="form-control">
@@ -86,8 +145,9 @@ export default function RegisterPage() {
                                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center">
                                             <DevicePhoneMobileIcon className="w-5 h-5 opacity-70 text-primary" />
                                         </span>
-                                        <input type="text" className="input input-bordered pl-10 w-full max-w-full" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                                        <input type="text" className="input input-bordered pl-10 w-full max-w-full" value={phone} onChange={(e) => handleChange("phone", e.target.value)}  />
                                     </div>
+                                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
                                 </label>
                             </div>
                             <div className="form-control mt-6">

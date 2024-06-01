@@ -11,9 +11,10 @@ export default function CategoriesPage() {
     const router = useRouter();
     const [columns, setColumns] = useState([]);
     const [data, setData] = useState([]);
-    const [name, setName] = useState([]);
+    const [name, setName] = useState("");
     const [formTitle, setFormTitle] = useState("");
     const [selectedRows, setSelectedRows] = useState([]);
+    const [errors, setErrors] = useState({});
 
     const fetchData = async () => {
         await apiFetch.get("/api/categories").then((response) => {
@@ -34,8 +35,21 @@ export default function CategoriesPage() {
         });
     };
 
+    const validateInputs = () => {
+        const errors = {};
+        if (!name) {
+            errors.name = "Name harus diisi!";
+        }
+        return errors;
+    };
+
     const submitForm = async (e) => {
         e.preventDefault();
+        const validationErrors = validateInputs();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
 
         let formData = {
             name: name,
@@ -48,8 +62,9 @@ export default function CategoriesPage() {
             url = apiFetch.put(`/api/categories/${selectedRows[0].id}`, formData);
             msg = "Berhasil ubah kategori";
         } else {
-            url = apiFetch.post("/api/categories", formData);
-            msg = "Berhasil tambah kategori";
+                url = apiFetch.post("/api/categories", formData);
+                msg = "Berhasil tambah kategori";
+            
         }
 
         await url
@@ -75,26 +90,35 @@ export default function CategoriesPage() {
                     title: "Gagal!",
                     text: "Terjadi kesalahan di sistem. Silakan coba lagi.",
                 });
-            })
-    }
+            });
+    };
 
     const handleRowSelected = useCallback((state) => {
         setSelectedRows(state.selectedRows);
     }, []);
 
     const handleEdit = () => {
-        setFormTitle("Form Ubah Kategori");
-        document.getElementById("name").value = selectedRows[0].name;
-
-        setName(selectedRows[0].name);
-
-        document.getElementById("my_modal_3").showModal();
+        if(selectedRows.length > 0){
+            setFormTitle("Form Ubah Kategori");
+            document.getElementById("name").value = selectedRows[0].name;
+            setName(selectedRows[0].name);
+            document.getElementById("my_modal_3").showModal();
+            setErrors({});
+        }else{
+            Swal.fire({
+                icon: "error",
+                title: "Belum pilih data kategori!",
+            });
+        }
+        
     };
 
     const openModal = () => {
         setFormTitle("Form Tambah Kategori");
         document.getElementById("my_modal_3").showModal();
         document.getElementById("name").value = "";
+        setName("");
+        setErrors({});
     };
 
     const handleDelete = async () => {
@@ -171,10 +195,11 @@ export default function CategoriesPage() {
                                 className="grow"
                                 placeholder="Name"
                                 autoComplete="off"
+                                value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                required
                             />
                         </label>
+                        {errors.name && <span className="text-red-500">{errors.name}</span>}
                         <div className="modal-action">
                             <button type="submit" className="btn btn-primary">
                                 Save

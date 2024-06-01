@@ -12,6 +12,7 @@ import {
     KeyIcon,
 } from "@heroicons/react/20/solid";
 import Swal from "sweetalert2";
+import { error } from "jquery";
 // import "datatables.net-dt/css/jquery.dataTables.css";
 // import ReactDataTables from "@/components/ReactDataTables";
 // import DataTable from 'datatables.net';
@@ -57,6 +58,7 @@ export default function UsersPage() {
     const [password, setPassword] = useState('');
     const [formTitle, setFormTitle] = useState('');
     const [selectedRows, setSelectedRows] = useState([]);
+    const [errors, setErrors] = useState({});
 
     const fetchData = async () => {
         // console.log(moment().seconds(+30).format());
@@ -92,9 +94,41 @@ export default function UsersPage() {
         return table; */
     }
 
+    const validateInputs = () => {
+        const errors = {};
+        if (!name) {
+            errors.name = "Name harus diisi.";
+        }
+        if (!email) {
+            errors.email = "Email harus diisi.";
+        }
+        else if (!/\S+@\S+\.\S+/.test(email)){
+            errors.email = "Email yang anda masukkan tidak valid"
+        }
+        if (!phone) {
+            errors.phone = "Phone harus diisi.";
+        }
+        else if (!/^\d{10,}$/.test(phone)){
+            errors.phone = "Nomor yang anda masukkan tidak valid"
+        }
+        if (!password){
+            errors.password = "Password harus diisi"
+        }
+        else if (password.length < 8){
+            errors.password = "Password harus lebih dari 8 karakter"
+        }
+        return errors;
+    };
+
     //method store post
     const submitForm = async (e) => {
         e.preventDefault();
+
+        const validationErrors = validateInputs();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
 
         //init FormData
         // const formData = new FormData();
@@ -172,7 +206,7 @@ export default function UsersPage() {
         setName(selectedRows[0].name)
         setEmail(selectedRows[0].email)
         setPhone(selectedRows[0].phone)
-        
+        setErrors({});
         document.getElementById('my_modal_3').showModal()
         // eslint-disable-next-line no-alert
         /* if (window.confirm(`Are you sure you want to delete:\r ${selectedRows.map(r => r.title)}?`)) {
@@ -188,6 +222,11 @@ export default function UsersPage() {
         document.getElementById('email').value = ''
         document.getElementById('phone').value = ''
         document.getElementById('password').value = ''
+        setName("");
+        setEmail("");
+        setPhone("");
+        setPassword("");
+        setErrors({});
     };
 
     const handleDelete = async () => {
@@ -261,22 +300,35 @@ export default function UsersPage() {
                         <h3 className="font-bold text-lg mb-5">{formTitle}</h3>
                     {/* <p className="py-4">Press ESC key or click the button below to close</p> */}
                     <form method="dialog" onSubmit={submitForm}>
-                        <label className="input input-bordered flex items-center gap-2 mb-3">
-                            <UserIcon className="w-4 h-4 opacity-70" />
-                            <input type="text" id="name" className="grow" placeholder="Name" autoComplete="off" onChange={(e) => setName(e.target.value)} required />
-                        </label>
-                        <label className="input input-bordered flex items-center gap-2 mb-3">
-                            <EnvelopeIcon className="w-4 h-4 opacity-70" />
-                            <input type="email" id="email" className="grow" placeholder="Email" autoComplete="off" onChange={(e) => setEmail(e.target.value)} required />
-                        </label>
-                        <label className="input input-bordered flex items-center gap-2 mb-3">
-                            <PhoneIcon className="w-4 h-4 opacity-70" />
-                            <input type="text" id="phone" className="grow" placeholder="No. telepon (08123456789)" autoComplete="off" onChange={(e) => setPhone(e.target.value)} required />
-                        </label>
-                        <label className="input input-bordered flex items-center gap-2">
-                            <KeyIcon className="w-4 h-4 opacity-70" />
-                            <input type="password" id="password" className="grow" autoComplete="off" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required />
-                        </label>
+                        <div className="gap-2 mb-3">
+                            <label className="input input-bordered flex items-center">
+                                <UserIcon className="w-4 h-4 opacity-70" />
+                                <input type="text" id="name" className="grow" placeholder="Name" autoComplete="off" onChange={(e) => setName(e.target.value)}/>
+                            </label>
+                            {errors.name && <span className="text-red-500">{errors.name}</span>}
+                        </div>
+                        <div className="gap-2 mb-3">
+                            <label className="input input-bordered flex items-center">
+                                <EnvelopeIcon className="w-4 h-4 opacity-70" />
+                                <input type="text" id="email" className="grow" placeholder="Email" autoComplete="off" onChange={(e) => setEmail(e.target.value)}/>
+                            </label>
+                            {errors.email && <span className="text-red-500">{errors.email}</span>}
+                        </div>
+                        <div className="gap-2 mb-3">
+                            <label className="input input-bordered flex items-center ">
+                                <PhoneIcon className="w-4 h-4 opacity-70" />
+                                <input type="text" id="phone" className="grow" placeholder="No. telepon (08123456789)" autoComplete="off" onChange={(e) => setPhone(e.target.value)}  />
+                            </label>
+                            {errors.phone && <span className="text-red-500">{errors.phone}</span>}
+                        </div>
+                        <div className="gap-2">
+                            <label className="input input-bordered flex items-center gap">
+                                <KeyIcon className="w-4 h-4 opacity-70" />
+                                <input type="password" id="password" className="grow" autoComplete="off" placeholder="Password" onChange={(e) => setPassword(e.target.value)}  />
+                            </label>
+                            {errors.password && <span className="text-red-500">{errors.password}</span>}
+                        </div>
+                        
                         <div className="modal-action">
                             {/* if there is a button in form, it will close the modal */}
                                 <button type="submit" className="btn btn-primary">Save</button>

@@ -2,15 +2,32 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/20/solid";
+import Swal from "sweetalert2";
 
 
 export default function LoginPage() {
     const router = useRouter();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [errors, setErrors] = useState({});
+
+    const validate = () => {
+        const newErrors = {};
+        if (!username) newErrors.username = "Email is required";
+        else if (!/\S+@\S+\.\S+/.test(username)) newErrors.username = "Email is invalid";
+        if (!password) newErrors.password = "Password is required";
+        return newErrors;
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        const newErrors = validate();
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        try{
         const res = await fetch("/api/login", {
             method: "POST",
             body: JSON.stringify({ username, password }),
@@ -20,8 +37,30 @@ export default function LoginPage() {
             router.push("/protected");
             // router.reload();
         } else {
-            alert("Login failed");
+            Swal.fire({
+                icon: "error",
+                title: "Login gagal!",
+                text: "Email atau password salah!",
+            });
         }
+    } catch(error){
+        alert("An error occurred: " + error.message);
+    }
+    };
+
+    const handleChange = (field, value) => {
+        let newErrors = { ...errors };
+        if (field === "username") {
+            setUsername(value);
+            if (!value) newErrors.username = "Email is required";
+            else if (!/\S+@\S+\.\S+/.test(value)) newErrors.username = "Email is invalid";
+            else delete newErrors.username;
+        } else if (field === "password") {
+            setPassword(value);
+            if (!value) newErrors.password = "Password is required";
+            else delete newErrors.password;
+        }
+        setErrors(newErrors);
     };
 
     const toRegister = () => {
@@ -48,8 +87,9 @@ export default function LoginPage() {
                                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center">
                                             <EnvelopeIcon className="w-5 h-5 opacity-70 text-primary" />
                                         </span>
-                                        <input type="text" className="input input-bordered pl-10 w-full max-w-full" value={username} onChange={(e) => setUsername(e.target.value)} />
+                                        <input type="text" className="input input-bordered pl-10 w-full max-w-full" value={username} onChange={(e) => handleChange("username", e.target.value)} />
                                     </div>
+                                    {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
                                 </label>
                             </div>
                             <div className="form-control">
@@ -61,9 +101,10 @@ export default function LoginPage() {
                                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center">
                                             <LockClosedIcon className="w-5 h-5 opacity-70 text-primary" />
                                         </span>
-                                        <input type="password" className="input input-bordered pl-10 w-full max-w-full" value={password} onChange={(e) => setPassword(e.target.value)} />
+                                        <input type="password" className="input input-bordered pl-10 w-full max-w-full" value={password} onChange={(e) => handleChange("password", e.target.value)} />
                                     </div>
                                 </label>
+                                {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                             </div>
                             <div className="form-control mt-6">
                                 <button type="submit" className="btn btn-primary">LOGIN</button>

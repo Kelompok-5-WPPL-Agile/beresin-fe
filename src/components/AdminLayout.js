@@ -135,7 +135,7 @@ useEffect(() => {
             <BellIcon className=" w-8 h-8 mr-3" />
             <div className="avatar placeholder">
                 <div className="bg-neutral text-neutral-content rounded-full w-10 rounded-full">
-                    <span class="text-xl">{avatarPlaceholder}</span>
+                    <span className="text-xl">{avatarPlaceholder}</span>
                 {/* <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" /> */}
                 </div>
             </div>
