@@ -76,9 +76,29 @@ body {
     margin-top: 0.5rem;
   }
 
+  .chart-left{
+    width: 100%;
+    margin-left : 0;
+    margin-top: 0.5rem;
+  }
+  .chart-right{
+    width: 100%;
+    margin-left : 0;
+    margin-top: 0.5rem;
+  }
+
   .card-content{
     justify-content: normal;
     flex-direction: column;
+  }
+
+  .chart-content{
+    justify-content: normal;
+    flex-direction: column;
+  }
+
+  .chart{
+    width: 100%;
   }
 }
 

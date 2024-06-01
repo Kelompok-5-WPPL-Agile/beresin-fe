@@ -1,13 +1,15 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect , useRef} from "react";
 import { apiFetch, logout } from "@/libs/auth";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 import AdminLayout from "../../components/AdminLayout"
 import { UserGroupIcon, Squares2X2Icon , PencilSquareIcon, DevicePhoneMobileIcon} from "@heroicons/react/20/solid";
+import { Chart } from "chart.js/auto";
 
 export default function ProtectedPage() {
     const router = useRouter();
+    const chartRef = useRef(null);
 
     // moment.locale("id");
     const [totalCategories, setTotalCategories] = useState([]);
@@ -140,41 +142,94 @@ export default function ProtectedPage() {
         fetchTotalTaskStatusClosed();
         fetchTotalTaskStatusReopen();
 
-    }, []);
+        const ctx = document.getElementById('myChart').getContext('2d');
+        
+        if (chartRef.current) {
+            chartRef.current.destroy();
+        }
+
+        chartRef.current = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ["Open", "In Progress", "Resolved", "Closed", "Reopen"],
+                datasets: [{
+                    data: [
+                        totalTasksStatusOpen, 
+                        totalTasksStatusInProgress, 
+                        totalTasksStatusResolved, 
+                        totalTasksStatusClosed, 
+                        totalTasksStatusReopen
+                    ],
+                    borderColor: [
+                        "rgb(0, 234, 7)",
+                        "rgb(255, 205, 86)",
+                        "rgb(54, 162, 235)",
+                        "rgb(255, 99, 132)",
+                        "rgb(153, 102, 255)"
+                    ],
+                    backgroundColor: [
+                        "rgba(0, 234, 7)",
+                        "rgba(255, 205, 86)",
+                        "rgba(54, 162, 235)",
+                        "rgba(255, 99, 132)",
+                        "rgba(153, 102, 255)"
+                    ],
+                    borderWidth: 2,
+                }]
+            },
+            options: {
+              scales: {
+                  x: {
+                      display: false,
+                  },
+                  y: {
+                      display: false,
+                  },
+              }
+          },
+        });
+
+    }, [
+        totalTasksStatusOpen, 
+        totalTasksStatusInProgress, 
+        totalTasksStatusResolved, 
+        totalTasksStatusClosed, 
+        totalTasksStatusReopen
+    ]);
 
     return (
       <>
         <AdminLayout router={router}>
           <div className="flex total flex-row justify-around card-content">
           <div className="card card-total card-side bg-base-100 shadow-xl w-1/3 py-4 pl-2 ">
-            <div className="flex flex-row w-full justify-evenly">
+          <div className="flex flex-row">
               <div className="flex flex-col justify-center">
                   <UserGroupIcon className="w-16 h-16 text-primary" />
               </div>
-              <div className="flex flex-col justify-center">
-                  <h1 className="font-semibold text-xl text-center">{totalUsers}</h1>
-                  <p className="text-center font-semibold text-lg">Total Users</p>
+              <div className="flex flex-col pl-2 justify-center">
+                  <h1 className="font-semibold text-xl">{totalUsers}</h1>
+                  <p className="font-semibold text-lg">Total Users</p>
               </div>
             </div>
           </div>
           <div className="card card-total card-side bg-base-100 shadow-xl w-1/3 py-2 pl-2  ml-2">
-            <div className="flex flex-row w-full justify-evenly">
+          <div className="flex flex-row">
               <div className="flex flex-col justify-center">
                   <Squares2X2Icon className="w-16 h-16 text-primary" />
               </div>
-              <div className="flex flex-col justify-center">
-                  <h1 className="font-semibold text-xl text-center">{totalCategories}</h1>
+              <div className="flex flex-col pl-2 justify-center">
+                  <h1 className="font-semibold text-xl">{totalCategories}</h1>
                   <p className="text-center  font-semibold text-lg">Total Categories</p>
               </div>
             </div>
           </div>
           <div className="card card-total card-side bg-base-100 shadow-xl w-1/3 py-2 pl-2  ml-2">
-            <div className="flex flex-row w-full justify-evenly">
+            <div className="flex flex-row">
               <div className="flex flex-col justify-center ">
                   <PencilSquareIcon className="w-16 h-16 text-primary" />
               </div>
-              <div className="flex flex-col justify-center">
-                  <h1 className="font-semibold text-xl text-center">{totalTasks}</h1>
+              <div className="flex flex-col pl2 justify-center">
+                  <h1 className="font-semibold text-xl">{totalTasks}</h1>
                   <p className="text-center font-semibold text-lg">Total Tasks</p>
               </div>
             </div>
@@ -264,6 +319,21 @@ export default function ProtectedPage() {
           
 
 
+          </div>
+
+
+          <div className="chart-content flex flex-row justify-center mt-4">
+            <div className="chart-left flex w-full justify-center mx-1">
+                <div className='chart border border-gray-400 py-6 rounded-xl  shadow-xl px-12 '>
+                <h1 className="text-center text-xl font-semibold">Total Task dalam 1 Bulan by Status</h1>
+                    <canvas id='myChart'></canvas>
+                </div>
+            </div>
+            <div className="chart-right flex w-full justify-center mx-1">
+                <div className='chart border border-gray-400 py-6 rounded-xl  shadow-xl px-12 '>
+                <h1 className="text-center text-xl font-semibold">Total Task Pertanggal dalam 1 Bulan</h1> 
+                </div>
+            </div>
           </div>
 
           {/* <p>Categories</p> */}
