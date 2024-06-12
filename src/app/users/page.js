@@ -197,6 +197,7 @@ export default function UsersPage() {
     const handleEdit = () => {
         // console.log('selected: ',selectedRows.length);
         // console.log('selected: ',selectedRows[0].id);
+        if(selectedRows.length > 0){
         setFormTitle('Form Ubah User')
         document.getElementById("password").removeAttribute("required");
         document.getElementById('email').value = selectedRows[0].email;
@@ -213,6 +214,12 @@ export default function UsersPage() {
         setToggleCleared(!toggleCleared);
         setData(differenceBy(data, selectedRows, 'title'));
         } */
+        }else{
+            Swal.fire({
+                icon: "error",
+                title: "Belum pilih data user!",
+            });
+        }
     };
 
     const openModal = () => {
