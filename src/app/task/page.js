@@ -7,6 +7,8 @@ import DataTable from "react-data-table-component";
 import Swal from "sweetalert2";
 import moment from "moment";
 import Datepicker from "react-tailwindcss-datepicker";
+import Link from "next/link";
+import { EyeIcon } from "@heroicons/react/20/solid";
 
 export default function TaskPage() {
     const router = useRouter();
@@ -80,6 +82,15 @@ export default function TaskPage() {
                     selector: (row) => row.status,
                     sortable: true,
                 },
+                {
+                    name: 'Action',
+                    button: true,
+                    cell: row => (
+                        <Link href={'/task/detail/' + row.id} className="flex items-center gap-2 bg-info text-white px-4 py-2 rounded-md">
+                            <EyeIcon className="h-5 w-5" />
+                        </Link>
+                    ),
+                }
             ]);
         });
     };
